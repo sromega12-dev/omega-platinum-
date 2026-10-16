@@ -3,6 +3,37 @@ import 'game_guide_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Captura erros de renderização e evita a tela cinza congelada
+  ErrorWidget.builder = (FlutterErrorDetails details) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF0A0A0C),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.warning_amber_rounded, size: 60, color: Color(0xFF9D4EDD)),
+              const SizedBox(height: 16),
+              const Text(
+                'ERRO DE CARREGAMENTO NA TELA',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                details.exceptionAsString(),
+                style: const TextStyle(fontSize: 12, color: Colors.redAccent),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  };
+
   runApp(const OmegaPlatinumApp());
 }
 
@@ -22,78 +53,10 @@ class OmegaPlatinumApp extends StatelessWidget {
           surface: Color(0xFF0A0A0C),
         ),
       ),
-      home: const SafeGameGuideWrapper(),
-    );
-  }
-}
-
-// Wrapper seguro que impede o congelamento da tela cinza
-class SafeGameGuideWrapper extends StatefulWidget {
-  const SafeGameGuideWrapper({super.key});
-
-  @override
-  State<SafeGameGuideWrapper> createState() => _SafeGameGuideWrapperState();
-}
-
-class _SafeGameGuideWrapperState extends State<SafeGameGuideWrapper> {
-  bool _isReady = false;
-
-  @override
-  void initState() {
-    super.initState();
-    // Dá um respiro de 1 segundo para o motor gráfico renderizar o tema Dark OLED
-    // antes de tentar puxar os dados pesados da GameGuideScreen
-    Future.delayed(const Duration(milliseconds: 1000), () {
-      if (mounted) {
-        setState(() {
-          _isReady = true;
-        });
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (!_isReady) {
-      return Scaffold(
-        backgroundColor: const Color(0xFF0A0A0C),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: const Color(0xFF9D4EDD).withOpacity(0.2),
-                  border: Border.all(color: const Color(0xFF9D4EDD), width: 2),
-                ),
-                child: const Icon(Icons.emoji_events, size: 60, color: Color(0xFF9D4EDD)),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'OMEGOD',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF9D4EDD),
-                  letterSpacing: 2,
-                ),
-              ),
-              const SizedBox(height: 20),
-              const CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF9D4EDD)),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    // Carrega a tela real com os parâmetros exigidos de forma segura
-    return const GameGuideScreen(
-      psnId: 'Omegod_User',
-      gameId: 'omega_game_01',
+      home: const GameGuideScreen(
+        psnId: 'Omegod_User',
+        gameId: 'omega_game_01',
+      ),
     );
   }
 }
