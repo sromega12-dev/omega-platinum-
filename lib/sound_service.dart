@@ -8,4 +8,9 @@ class SoundService {
   Future<void> playTrophySound() async {
     print('Som de troféu executado em modo silencioso');
   }
+
+  // Compatibilidade com o game_guide_screen.dart
+  static Future<void> playTrophyDing() async {
+    print('Som playTrophyDing executado em modo silencioso');
+  }
 }
