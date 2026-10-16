@@ -1,6 +1,7 @@
 name: omega_platinum
-description: Aplicativo Android Dark & Roxo Neon para caçadores de troféus da PSN.
+description: "A new Flutter project for Omega Platinum."
 publish_to: 'none'
+
 version: 1.0.0+1
 
 environment:
@@ -9,10 +10,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
   cupertino_icons: ^1.0.6
-  firebase_core: ^2.24.2
-  cloud_firestore: ^4.13.6
-  audioplayers: ^6.0.0
+  firebase_core: ^2.27.0
+  cloud_firestore: ^4.15.8
 
 dev_dependencies:
   flutter_test:
