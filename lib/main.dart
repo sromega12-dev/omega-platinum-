@@ -1,24 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'sound_service.dart';
 
-void main() async {
+void main() {
+  // Inicialização direta do Flutter sem bloqueios externos
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // Inicialização segura do Firebase sem travar a interface
-  try {
-    await Firebase.initializeApp();
-  } catch (e) {
-    debugPrint('Aviso: Firebase não inicializado: $e');
-  }
-
-  // Inicialização silenciosa do serviço de som
-  try {
-    await SoundService().init();
-  } catch (e) {
-    debugPrint('Aviso: SoundService não inicializado: $e');
-  }
-
   runApp(const OmegaPlatinumApp());
 }
 
@@ -51,7 +35,10 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFF0A0A0C),
       appBar: AppBar(
-        title: const Text('OMEGA PLATINUM', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+        title: const Text(
+          'OMEGA PLATINUM',
+          style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
@@ -67,7 +54,11 @@ class HomeScreen extends StatelessWidget {
                 color: const Color(0xFF9D4EDD).withOpacity(0.2),
                 border: Border.all(color: const Color(0xFF9D4EDD), width: 2),
               ),
-              child: const Icon(Icons.emoji_events, size: 80, color: Color(0xFF9D4EDD)),
+              child: const Icon(
+                Icons.emoji_events,
+                size: 80,
+                color: Color(0xFF9D4EDD),
+              ),
             ),
             const SizedBox(height: 24),
             const Text(
@@ -89,13 +80,20 @@ class HomeScreen extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF9D4EDD),
                 padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
               onPressed: () {
-                SoundService.playTrophyDing();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Troféu Omega Platinum ativado!'),
+                    backgroundColor: Color(0xFF9D4EDD),
+                  ),
+                );
               },
               child: const Text(
-                'TESTAR TROFÉU',
+                'TESTAR RECURSO',
                 style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
               ),
             ),
