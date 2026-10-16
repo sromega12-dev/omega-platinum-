@@ -2,46 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'game_guide_screen.dart';
 
-void main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Inicializa o Firebase antes de rodar a tela
-  try {
-    await Firebase.initializeApp();
-  } catch (e) {
-    debugPrint('Aviso de inicialização do Firebase: $e');
-  }
-
-  // Captura erros de renderização visuais
-  ErrorWidget.builder = (FlutterErrorDetails details) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF0A0A0C),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.warning_amber_rounded, size: 60, color: Color(0xFF9D4EDD)),
-              const SizedBox(height: 16),
-              const Text(
-                'ERRO DE CARREGAMENTO NA TELA',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 12),
-              Text(
-                details.exceptionAsString(),
-                style: const TextStyle(fontSize: 12, color: Colors.redAccent),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  };
-
   runApp(const OmegaPlatinumApp());
 }
 
@@ -61,10 +23,57 @@ class OmegaPlatinumApp extends StatelessWidget {
           surface: Color(0xFF0A0A0C),
         ),
       ),
-      home: const GameGuideScreen(
-        psnId: 'Omegod_User',
-        gameId: 'omega_game_01',
-      ),
+      home: const FirebaseInitWrapper(),
+    );
+  }
+}
+
+class FirebaseInitWrapper extends StatefulWidget {
+  const FirebaseInitWrapper({super.key});
+
+  @override
+  State<FirebaseInitWrapper> createState() => _FirebaseInitWrapperState();
+}
+
+class _FirebaseInitWrapperState extends State<FirebaseInitWrapper> {
+  late Future<void> _initFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _initFuture = _initializeServices();
+  }
+
+  Future<void> _initializeServices() async {
+    try {
+      await Firebase.initializeApp();
+    } catch (e) {
+      debugPrint('Firebase ignorado com segurança: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: _initFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            backgroundColor: Color(0xFF0A0A0C),
+            body: Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF9D4EDD)),
+              ),
+            ),
+          );
+        }
+
+        // Abre a GameGuideScreen independentemente de o Firebase ter conectado ou não
+        return const GameGuideScreen(
+          psnId: 'Omegod_User',
+          gameId: 'omega_game_01',
+        );
+      },
     );
   }
 }
