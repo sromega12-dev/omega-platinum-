@@ -29,11 +29,14 @@ jobs:
         run: |
           flutter create . --org com.omega.platinum --project-name omega_platinum --platforms=android
 
-      - name: Configure SDK Version in Gradle
+      - name: Force Android SDK 35 in Gradle
         run: |
-          sed -i 's/compileSdkVersion 34/compileSdkVersion 33/g' android/app/build.gradle || true
-          sed -i 's/targetSdkVersion 34/targetSdkVersion 33/g' android/app/build.gradle || true
-          sed -i 's/minSdkVersion 21/minSdkVersion 24/g' android/app/build.gradle || true
+          sed -i 's/compileSdkVersion 34/compileSdkVersion 35/g' android/app/build.gradle || true
+          sed -i 's/targetSdkVersion 34/targetSdkVersion 35/g' android/app/build.gradle || true
+          sed -i 's/compileSdkVersion = 34/compileSdkVersion = 35/g' android/build.gradle || true
+          sed -i 's/targetSdkVersion = 34/targetSdkVersion = 35/g' android/build.gradle || true
+          echo "android.defaultConfig.targetSdkVersion=35" >> android/gradle.properties
+          echo "android.defaultConfig.compileSdkVersion=35" >> android/gradle.properties
 
       - name: Install dependencies
         run: flutter pub get
