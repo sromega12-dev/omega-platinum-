@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'game_guide_screen.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Captura erros de renderização e evita a tela cinza congelada
+  // Inicializa o Firebase antes de rodar a tela
+  try {
+    await Firebase.initializeApp();
+  } catch (e) {
+    debugPrint('Aviso de inicialização do Firebase: $e');
+  }
+
+  // Captura erros de renderização visuais
   ErrorWidget.builder = (FlutterErrorDetails details) {
     return Scaffold(
       backgroundColor: const Color(0xFF0A0A0C),
