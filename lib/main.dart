@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'game_guide_screen.dart'; // Importa a sua tela real
+import 'game_guide_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,8 +22,11 @@ class OmegaPlatinumApp extends StatelessWidget {
           surface: Color(0xFF0A0A0C),
         ),
       ),
-      // Aponta diretamente para o ecrã real do seu app:
-      home: const GameGuideScreen(),
+      // Passando os parâmetros obrigatórios exigidos pela tela:
+      home: const GameGuideScreen(
+        psnId: 'Omegod_User',
+        gameId: 'omega_game_01',
+      ),
     );
   }
 }
