@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'platinum_gallery_tab.dart';
 import 'game_search_screen.dart';
+import 'game_sedeer.dart';
 
 class HomeScreen extends StatefulWidget {
   final String psnId;
@@ -18,7 +19,7 @@ class _HomeScreenState extends State<HomeScreen> {
   static const Color surfaceDark = Color(0xFF141419);
   static const Color textMuted = Color(0xFFA0A0AB);
 
-  // Ajustes de preferências
+  // Configurações e preferências
   bool _soundEffects = true;
   bool _notifications = true;
   bool _darkOledTheme = true;
@@ -28,10 +29,11 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    // Lista de abas principais com o psnId repassado corretamente
     _pages = [
-      const PlatinumGalleryTab(),
-      GameSearchScreen(psnId: widget.psnId), // Barra de Pesquisa Dinâmica!
-      _buildSettingsTab(),
+      PlatinumGalleryTab(psnId: widget.psnId), // Perfil & Rank Omegod
+      GameSearchScreen(psnId: widget.psnId),    // Pesquisa de Guias
+      _buildSettingsTab(),                      // Ajustes
     ];
   }
 
@@ -68,42 +70,26 @@ class _HomeScreenState extends State<HomeScreen> {
             value: _darkOledTheme,
             onChanged: (val) => setState(() => _darkOledTheme = val),
           ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: backgroundColor,
-      body: _pages[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: surfaceDark,
-        selectedItemColor: primaryPurple,
-        unselectedItemColor: textMuted,
-        currentIndex: _currentIndex,
-        type: BottomNavigationBarType.fixed,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.emoji_events),
-            label: 'Platinas',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Guias',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Ajustes',
+          const Divider(color: surfaceDark),
+          const SizedBox(height: 12),
+          
+          // Botão para popular os guias iniciais no Firestore
+          ListTile(
+            tileColor: surfaceDark,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(color: primaryPurple.withOpacity(0.4)),
+            ),
+            leading: const Icon(Icons.cloud_upload, color: primaryPurple),
+            title: const Text(
+              'Carregar Guias Iniciais no Firestore',
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+            subtitle: const Text(
+              'Popula a nuvem com Elden Ring, Bloodborne, Silent Hill 2, etc.',
+              style: TextStyle(color: textMuted, fontSize: 12),
+            ),
+            onTap: () => GameSeeder().seedAllGuides(context),
           ),
         ],
-      ),
-    );
-  }
-}
+      
