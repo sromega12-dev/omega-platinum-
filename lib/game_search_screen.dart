@@ -11,13 +11,19 @@ class GameSearchScreen extends StatefulWidget {
 }
 
 class _GameSearchScreenState extends State<GameSearchScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
   static const Color backgroundColor = Color(0xFF0A0A0C);
   static const Color primaryPurple = Color(0xFF9D4EDD);
   static const Color surfaceDark = Color(0xFF141419);
   static const Color textMuted = Color(0xFFA0A0AB);
 
-  final TextEditingController _searchController = TextEditingController();
-  String _searchQuery = '';
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,141 +31,46 @@ class _GameSearchScreenState extends State<GameSearchScreen> {
       backgroundColor: backgroundColor,
       appBar: AppBar(
         backgroundColor: surfaceDark,
+        elevation: 0,
         title: const Text(
-          'Pesquisar Guias de Platinas',
-          style: TextStyle(color: Colors.white, fontSize: 18),
+          'Buscar Guias de Platinas',
+          style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
         ),
       ),
       body: Column(
         children: [
-          // Barra de Pesquisa Moderna
-          Padding(
+          // Campo de busca em tempo real
+          Container(
             padding: const EdgeInsets.all(16.0),
-            child: Container(
-              decoration: BoxDecoration(
-                color: surfaceDark,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: primaryPurple.withOpacity(0.5)),
-              ),
-              child: TextField(
-                controller: _searchController,
-                style: const TextStyle(color: Colors.white),
-                onChanged: (value) {
-                  setState(() {
-                    _searchQuery = value.trim().toLowerCase();
-                  });
-                },
-                decoration: const InputDecoration(
-                  hintText: 'Digite o nome do jogo (ex: Elden Ring)...',
-                  hintStyle: TextStyle(color: textMuted),
-                  prefixIcon: Icon(Icons.search, color: primaryPurple),
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            color: surfaceDark,
+            child: TextField(
+              controller: _searchController,
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                hintText: 'Digite o nome do jogo (ex: Elden Ring)...',
+                hintStyle: const TextStyle(color: textMuted),
+                prefixIcon: const Icon(Icons.search, color: primaryPurple),
+                suffixIcon: _searchQuery.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear, color: textMuted),
+                        onPressed: () {
+                          setState(() {
+                            _searchController.clear();
+                            _searchQuery = '';
+                          });
+                        },
+                      )
+                    : null,
+                filled: true,
+                fillColor: backgroundColor,
+                contentPadding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                  borderSide: BorderSide(color: primaryPurple.withOpacity(0.3)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                  borderSide: const BorderSide(color: primaryPurple, width: 1.5),
                 ),
               ),
-            ),
-          ),
-
-          // Lista Dinâmica baseada no Firestore
-          Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance.collection('games').snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: CircularProgressIndicator(color: primaryPurple),
-                  );
-                }
-
-                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return const Center(
-                    child: Text(
-                      'Nenhum guia encontrado na nuvem.',
-                      style: TextStyle(color: textMuted),
-                    ),
-                  );
-                }
-
-                // Filtra os jogos em tempo real com base no que foi digitado na barra de pesquisa
-                final docs = snapshot.data!.docs.where((doc) {
-                  final data = doc.data() as Map<String, dynamic>;
-                  final title = (data['title'] ?? '').toString().toLowerCase();
-                  return title.contains(_searchQuery);
-                }).toList();
-
-                if (docs.isEmpty) {
-                  return const Center(
-                    child: Text(
-                      'Nenhum jogo corresponde à pesquisa.',
-                      style: TextStyle(color: textMuted),
-                    ),
-                  );
-                }
-
-                return ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: docs.length,
-                  itemBuilder: (context, index) {
-                    final gameData = docs[index].data() as Map<String, dynamic>;
-                    final gameId = docs[index].id;
-                    final title = gameData['title'] ?? 'Jogo Desconhecido';
-                    final difficulty = gameData['difficulty'] ?? 'N/A';
-                    final estimatedTime = gameData['estimatedTime'] ?? 'N/A';
-
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      decoration: BoxDecoration(
-                        color: surfaceDark,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: primaryPurple.withOpacity(0.3)),
-                      ),
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.all(16),
-                        leading: Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: primaryPurple.withOpacity(0.15),
-                            shape: BoxShape.circle,
-                          ),
-                          icon: const Icon(Icons.sports_esports, color: primaryPurple),
-                        ),
-                        title: Text(
-                          title,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        subtitle: Padding(
-                          padding: const EdgeInsets.only(top: 6.0),
-                          child: Text(
-                            'Dificuldade: $difficulty • Tempo: $estimatedTime',
-                            style: const TextStyle(color: textMuted, fontSize: 12),
-                          ),
-                        ),
-                        trailing: const Icon(Icons.arrow_forward_ios, color: primaryPurple, size: 16),
-                        onTap: () {
-                          // Abre o guia detalhado daquele jogo específico
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => GameGuideScreen(
-                                psnId: widget.psnId,
-                                gameId: gameId,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+              onChanged:
