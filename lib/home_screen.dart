@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'platinum_gallery_tab.dart';
-import 'game_guide_screen.dart';
-import 'sound_service.dart';
+import 'game_search_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final String psnId;
@@ -19,7 +18,7 @@ class _HomeScreenState extends State<HomeScreen> {
   static const Color surfaceDark = Color(0xFF141419);
   static const Color textMuted = Color(0xFFA0A0AB);
 
-  // Estados dos Ajustes integrados
+  // Ajustes de preferências
   bool _soundEffects = true;
   bool _notifications = true;
   bool _darkOledTheme = true;
@@ -31,12 +30,11 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _pages = [
       const PlatinumGalleryTab(),
-      GameGuideScreen(psnId: widget.psnId, gameId: 'divinity_original_sin_2'),
-      _buildSettingsTab(), // Ajustes embutidos diretamente aqui!
+      GameSearchScreen(psnId: widget.psnId), // Barra de Pesquisa Dinâmica!
+      _buildSettingsTab(),
     ];
   }
 
-  // Aba de Ajustes unificada para evitar criar novos ficheiros
   Widget _buildSettingsTab() {
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -97,7 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
             label: 'Platinas',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.menu_book),
+            icon: Icon(Icons.search),
             label: 'Guias',
           ),
           BottomNavigationBarItem(
