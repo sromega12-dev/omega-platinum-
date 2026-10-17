@@ -164,8 +164,8 @@ class _GameSearchScreenState extends State<GameSearchScreen> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => GameGuideScreen(
-                                gameId: gameId,
-                                gameTitle: title,
+                                psnId: widget.psnId, // Passa o psnId correto exigido pelo guia
+                                gameId: gameId,       // Passa o ID do jogo no Firestore
                               ),
                             ),
                           );
