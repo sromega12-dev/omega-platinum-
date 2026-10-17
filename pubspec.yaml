@@ -1,5 +1,5 @@
 name: omega_platinum
-description: "A new Flutter project for Omega Platinum."
+description: "Omega Platinum - O guia supremo de caça a platinas na PSN com rank Omegod."
 publish_to: 'none'
 
 version: 1.0.0+1
@@ -11,9 +11,13 @@ dependencies:
   flutter:
     sdk: flutter
 
-  cupertino_icons: ^1.0.6
+  # Firebase e Banco de Dados
   firebase_core: ^2.27.0
   cloud_firestore: ^4.15.8
+
+  # Recursos visuais e sons
+  cupertino_icons: ^1.0.6
+  just_audio: ^0.9.36 # Para o som de conquista "Trophy Ding"
 
 dev_dependencies:
   flutter_test:
@@ -22,3 +26,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  # Caso utilize arquivos de áudio locais para o Trophy Ding
+  assets:
+    - assets/sounds/
