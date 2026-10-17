@@ -39,7 +39,6 @@ class _GameSearchScreenState extends State<GameSearchScreen> {
       ),
       body: Column(
         children: [
-          // Campo de busca em tempo real
           Container(
             padding: const EdgeInsets.all(16.0),
             color: surfaceDark,
@@ -73,4 +72,113 @@ class _GameSearchScreenState extends State<GameSearchScreen> {
                   borderSide: const BorderSide(color: primaryPurple, width: 1.5),
                 ),
               ),
-              onChanged:
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value.trim().toLowerCase();
+                });
+              },
+            ),
+          ),
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance.collection('games').snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator(color: primaryPurple));
+                }
+
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      'Nenhum guia encontrado na nuvem.\nUse a opção em Ajustes para carregar os jogos!',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: textMuted, fontSize: 14),
+                    ),
+                  );
+                }
+
+                final filteredDocs = snapshot.data!.docs.where((doc) {
+                  final data = doc.data() as Map<String, dynamic>;
+                  final title = (data['title'] ?? '').toString().toLowerCase();
+                  return title.contains(_searchQuery);
+                }).toList();
+
+                if (filteredDocs.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      'Nenhum jogo corresponde à sua busca.',
+                      style: TextStyle(color: textMuted, fontSize: 14),
+                    ),
+                  );
+                }
+
+                return ListView.builder(
+                  padding: const EdgeInsets.all(16.0),
+                  itemCount: filteredDocs.length,
+                  itemBuilder: (context, index) {
+                    final gameDoc = filteredDocs[index];
+                    final gameData = gameDoc.data() as Map<String, dynamic>;
+                    final gameId = gameDoc.id;
+                    final title = gameData['title'] ?? 'Jogo sem título';
+                    final difficulty = gameData['difficulty'] ?? 'N/A';
+                    final estimatedTime = gameData['estimatedTime'] ?? 'N/A';
+
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 12.0),
+                      decoration: BoxDecoration(
+                        color: surfaceDark,
+                        borderRadius: BorderRadius.circular(12.0),
+                        border: Border.all(color: primaryPurple.withOpacity(0.3)),
+                      ),
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                        leading: Container(
+                          padding: const EdgeInsets.all(8.0),
+                          decoration: BoxDecoration(
+                            color: primaryPurple.withOpacity(0.15),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.sports_esports, color: primaryPurple),
+                        ),
+                        title: Text(
+                          title,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16.0,
+                          ),
+                        ),
+                        subtitle: Padding(
+                          padding: const EdgeInsets.only(top: 4.0),
+                          child: Row(
+                            children: [
+                              Text('Dificuldade: $difficulty', style: const TextStyle(color: textMuted, fontSize: 12)),
+                              const SizedBox(width: 12),
+                              Text('Tempo: $estimatedTime', style: const TextStyle(color: textMuted, fontSize: 12)),
+                            ],
+                          ),
+                        ),
+                        trailing: const Icon(Icons.arrow_forward_ios, color: primaryPurple, size: 16),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => GameGuideScreen(
+                                gameId: gameId,
+                                gameTitle: title,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
