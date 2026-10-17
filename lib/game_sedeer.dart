@@ -1,13 +1,34 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
 class GameSeeder {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  Future<void> seedAllGuides() async {
-    await seedDivinityGuide();
-    await seedEldenRingGuide();
-    await seedBloodborneGuide();
-    await seedSilentHill2Guide();
+  Future<void> seedAllGuides(BuildContext context) async {
+    try {
+      await seedDivinityGuide();
+      await seedEldenRingGuide();
+      await seedBloodborneGuide();
+      await seedSilentHill2Guide();
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: Color(0xFF9D4EDD),
+            content: Text('Guias populados com sucesso no Firestore!'),
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.redAccent,
+            content: Text('Erro ao popular guias: $e'),
+          ),
+        );
+      }
+    }
   }
 
   Future<void> seedDivinityGuide() async {
