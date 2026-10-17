@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'platinum_gallery_tab.dart';
 import 'game_search_screen.dart';
-import 'game_sedeer.dart';
+import 'game_seeder.dart'; // Corrigido para um 'e'
 
 class HomeScreen extends StatefulWidget {
   final String psnId;
@@ -19,7 +19,6 @@ class _HomeScreenState extends State<HomeScreen> {
   static const Color surfaceDark = Color(0xFF141419);
   static const Color textMuted = Color(0xFFA0A0AB);
 
-  // Configurações e preferências
   bool _soundEffects = true;
   bool _notifications = true;
   bool _darkOledTheme = true;
@@ -29,11 +28,10 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // Lista de abas principais com o psnId repassado corretamente
     _pages = [
-      PlatinumGalleryTab(psnId: widget.psnId), // Perfil & Rank Omegod
-      GameSearchScreen(psnId: widget.psnId),    // Pesquisa de Guias
-      _buildSettingsTab(),                      // Ajustes
+      PlatinumGalleryTab(psnId: widget.psnId),
+      GameSearchScreen(psnId: widget.psnId),
+      _buildSettingsTab(),
     ];
   }
 
@@ -72,8 +70,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const Divider(color: surfaceDark),
           const SizedBox(height: 12),
-          
-          // Botão para popular os guias iniciais no Firestore
           ListTile(
             tileColor: surfaceDark,
             shape: RoundedRectangleBorder(
@@ -92,4 +88,41 @@ class _HomeScreenState extends State<HomeScreen> {
             onTap: () => GameSeeder().seedAllGuides(context),
           ),
         ],
-      
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: backgroundColor,
+      body: _pages[_currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: surfaceDark,
+        selectedItemColor: primaryPurple,
+        unselectedItemColor: textMuted,
+        currentIndex: _currentIndex,
+        type: BottomNavigationBarType.fixed,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.emoji_events),
+            label: 'Platinas',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.search),
+            label: 'Guias',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Ajustes',
+          ),
+        ],
+      ),
+    );
+  }
+}
